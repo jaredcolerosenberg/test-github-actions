@@ -1,0 +1,36 @@
+name: Update draft releases
+
+on:
+  push:
+    # branches to consider in the event; optional, defaults to all
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      # Latest commit to include with the release. If omitted, use the latest commit on the main branch.
+      sha:
+        description: Commit SHA
+        type: string
+
+permissions:
+  # write permission is required to create a GitHub release
+  contents: write
+  # write permission is required for auto-labeler
+  # otherwise, read permission is required at least
+  pull-requests: read
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    # use below once I have multiple packages on here & only want to run one at a time
+    # if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'tapology-v2')
+    steps:
+      # Drafts your next Release notes as Pull Requests are merged into "main"
+      - name: Draft release
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml
+          commitish: ${{ inputs.sha || github.sha }}
+          disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
