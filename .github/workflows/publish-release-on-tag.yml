@@ -1,0 +1,40 @@
+name: Publish Draft Release on Tag Push
+
+on:
+  push:
+    tags:
+      - 'v*'  # Match tags like v0.2.1
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Publish draft release
+        id: publish_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const tag = context.ref.replace('refs/tags/', '');
+            const { data: releases } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const release = releases.find(r => r.tag_name === tag && r.draft);
+
+            if (!release) {
+              throw new Error(`No draft release found for tag ${tag}`);
+            }
+            
+            await github.rest.repos.updateRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: release.id,
+            draft: false,
+            });
+
+            console.log(`Published release: ${release.name}`);
