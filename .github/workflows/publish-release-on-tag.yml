@@ -3,6 +3,7 @@ name: Publish Draft Release on Tag Push
 on:
   push:
     tags:
+      # should we limit these to just the main branch?
       - 'v*'  # Match tags like v0.2.1
 
 jobs:
