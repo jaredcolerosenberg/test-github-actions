@@ -1,12 +1,8 @@
 name: Publish Draft Release on Tag Push
 
-# TODO: don't know why this isn't working
-
 on:
-  push:
-    tags:
-      # should we limit these to just the main branch?
-      - 'v*'  # Match tags like v0.2.1
+  workflow_call:
+    inputs: {}  # No specific inputs needed as tag is inferred from the push event
 
 jobs:
   publish-release:
@@ -34,10 +30,10 @@ jobs:
             }
             
             await github.rest.repos.updateRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            release_id: release.id,
-            draft: false,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+              draft: false,
             });
 
             console.log(`Published release: ${release.name}`);
